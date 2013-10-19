@@ -1,21 +1,20 @@
 # Taken from https://github.com/oxos/gmail-oauth-thread-stats/blob/master/gmail_imap_extensions_compatibility.rb
 
 module GmailImapExtensions
-
-  def self.patch_net_imap_response_parser(klass = Net::IMAP::ResponseParser)
+  def self.patch_net_imap_response_parser(klass = ::Net::IMAP::ResponseParser)
     klass.class_eval do
-      def msg_att
-        match(T_LPAR)
+      def msg_att(n)
+        match(:LPAR)
         attr = {}
         while true
           token = lookahead
           case token.symbol
-          when T_RPAR
+          when :RPAR
             shift_token
             break
-          when T_SPACE
+          when :SPACE
             shift_token
-            token = lookahead
+            next
           end
           case token.value
           when /\A(?:ENVELOPE)\z/ni
@@ -32,7 +31,7 @@ module GmailImapExtensions
             name, val = body_data
           when /\A(?:UID)\z/ni
             name, val = uid_data
-      
+
           # Gmail extension additions.
           # Cargo-Cult code warning: # I have no idea why the regexp - just copying a pattern
           when /\A(?:X-GM-LABELS)\z/ni
@@ -41,8 +40,10 @@ module GmailImapExtensions
             name, val = uid_data
           when /\A(?:X-GM-THRID)\z/ni 
             name, val = uid_data
+
+          # End Gmail extension
           else
-            parse_error("unknown attribute `%s'", token.value)
+            parse_error("unknown attribute `%s' for {%d}", token.value, n)
           end
           attr[name] = val
         end
@@ -50,5 +51,4 @@ module GmailImapExtensions
       end
     end
   end
-
 end
