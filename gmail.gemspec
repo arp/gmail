@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency "mime", ">= 0.1"
   s.add_dependency "mail", ">= 2.2.1"
   s.add_dependency "gmail_xoauth", ">= 0.3.0"
-  s.add_dependency "rest-client", ">= 1.7.0"
+  s.add_dependency "rest-client", ">= 1.6.7"
   
   # development dependencies
   s.add_development_dependency "rake"
